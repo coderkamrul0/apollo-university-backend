@@ -1,14 +1,17 @@
 import { Schema, model } from 'mongoose';
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  StudentMethods,
+  StudentModel,
+  TUserName,
 } from './student.interface';
-import validator from 'validator';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
 // username schema
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
     required: [true, 'First name is required!'],
@@ -24,7 +27,7 @@ const userNameSchema = new Schema<UserName>({
 });
 
 // guardian schema
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, 'Father name is required'],
@@ -52,7 +55,7 @@ const guardianSchema = new Schema<Guardian>({
 });
 
 // local guardian schema
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Local Guardian name is required'],
@@ -72,11 +75,15 @@ const localGuardianSchema = new Schema<LocalGuardian>({
 });
 
 // main schema
-const studentSchema = new Schema<Student>({
+const studentSchema = new Schema<TStudent, StudentModel>({
   id: {
     type: String,
     required: [true, 'Student ID is required'],
     unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
   },
   name: {
     type: userNameSchema, // username schema
@@ -95,10 +102,6 @@ const studentSchema = new Schema<Student>({
     type: String,
     required: [true, 'Email is required'],
     unique: true,
-    validate: {
-      validator: (value: string) => validator.isEmail(value),
-      message: '{VALUE} is not valid',
-    },
   },
   contactNo: { type: String, required: [true, 'Contact No is required'] },
   emergencyContactNo: {
@@ -133,5 +136,33 @@ const studentSchema = new Schema<Student>({
   },
 });
 
+// pre save middleware / hook
+studentSchema.pre('save', async function (next) {
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_round),
+  );
+  next()
+});
+// post save middleware / hook
+studentSchema.post('save', function (doc, next) {
+  doc.password=''
+  next()
+});
+
+// creating a custom static method
+studentSchema.statics.isUserExist = async function (id: string) {
+  const existingUser = await Student.findOne({ id });
+  return existingUser;
+};
+
+// creating a custom instance method
+
+// studentSchema.methods.isUserExist = async function (id: string) {
+//   const existingUser = await Student.findOne({ id });
+//   return existingUser;
+// };
+
 // model
-export const StudentModel = model<Student>('Student', studentSchema);
+export const Student = model<TStudent, StudentModel>('Student', studentSchema);
