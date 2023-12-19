@@ -17,6 +17,7 @@ const test = async (req: Request, res: Response) => {
 
 app.get('/', test);
 
+
 app.use(globalErrorHandler);
 
 //Not Found
