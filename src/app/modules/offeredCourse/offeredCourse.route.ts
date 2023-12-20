@@ -14,15 +14,15 @@ router.post(
   OfferedCourseControllers.createOfferedCourse,
 );
 
-// router.patch(
-//   '/:id',
-//   validateRequest(OfferedCourseValidations.updateOfferedCourseValidationSchema),
-//   OfferedCourseControllers.updateOfferedCourse,
-// );
+router.patch(
+  '/:id',
+  validateRequest(OfferedCourseValidations.updateOfferedCourseValidationSchema),
+  OfferedCourseControllers.updateOfferedCourse,
+);
 
-// router.delete(
-//   '/:id',
-//   OfferedCourseControllers.deleteOfferedCourseFromDB,
-// );
+router.delete(
+  '/:id',
+  OfferedCourseControllers.deleteOfferedCourseFromDB,
+);
 
 export const offeredCourseRoutes = router;
