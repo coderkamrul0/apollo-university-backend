@@ -28,20 +28,16 @@ const loginUser = async (payload: TLoginUser) => {
     throw new AppError(httpStatus.FORBIDDEN, 'Password do not match.');
   }
 
-  // Access Granted: Send AccessToken , RefreshToken
   const jwtPayload = {
     userId: userData.id,
     role: userData.role,
   };
-  const accessToken = jwt.sign(
-    {
-      data: jwtPayload,
-    },
-    config.jst_access_secret as string,
-    { expiresIn: '10d' },
-  );
 
-  return { accessToken, needsPasswordChange: userData?.needsPasswordChange };
+  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
+    expiresIn: '10d',
+  });
+
+  return { accessToken, needsPasswordChange: userData.needsPasswordChange };
 };
 
 export const AuthService = {
