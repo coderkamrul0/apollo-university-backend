@@ -2,12 +2,18 @@ import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { StudentControllers } from './student.controller';
 import { updateStudentValidationSchema } from './student.validation';
+import auth from '../../middlewares/auth';
+import { USER_ROLE } from '../user/user.constant';
 
 const router = express.Router();
 
 router.get('/', StudentControllers.getAllStudents);
 
-router.get('/:id', StudentControllers.getSingleStudent);
+router.get(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.faculty),
+  StudentControllers.getSingleStudent,
+);
 
 router.patch(
   '/:id',

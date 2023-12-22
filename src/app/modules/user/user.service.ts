@@ -21,42 +21,32 @@ import { TAdmin } from '../Admin/admin.interface';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
-
-  // if password is not given , use default password
   userData.password = password || config.default_password;
-
-  // set student role
   userData.role = 'student';
   userData.email = payload.email;
 
-  // find academic semester info
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
   );
+  
   if (!admissionSemester) {
-    // handle the error or return accordingly
-    throw new Error('Admission semester not found');
+    throw new AppError(httpStatus.NOT_FOUND, 'Admission semester not found');
   }
 
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
-    //set  generated id
+
     userData.id = await generateStudentId(admissionSemester);
+    const newUser = await user.create([userData], { session });
 
-    // create a user (transaction-1)
-    const newUser = await user.create([userData], { session }); // array
-
-    //create a student
     if (!newUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
     }
-    // set id , _id as user
-    payload.id = newUser[0].id;
-    payload.user = newUser[0]._id; //reference _id
 
-    // create a student (transaction-2)
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id;
 
     const newStudent = await Student.create([payload], { session });
 
@@ -68,10 +58,16 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     await session.endSession();
 
     return newStudent;
-  } catch (err) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw new Error('Failed to create student');
+  } catch (err: any) {
+    console.error(err);
+
+    if (err instanceof AppError) {
+      throw err; // Re-throw custom AppError
+    } else {
+      await session.abortTransaction();
+      await session.endSession();
+      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create student');
+    }
   }
 };
 

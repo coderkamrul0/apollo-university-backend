@@ -16,13 +16,17 @@ router.post(
 );
 router.post(
   '/create-faculty',
+  auth(USER_ROLE.admin),
   validateRequest(facultyValidations.createFacultyValidationSchema),
   UserController.createFaculty,
 );
 router.post(
   '/create-admin',
+  // auth(USER_ROLE.admin),
   validateRequest(createAdminValidationSchema),
   UserController.createAdmin,
 );
+
+
 
 export const userRoutes = router;
