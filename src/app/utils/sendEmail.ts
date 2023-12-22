@@ -16,8 +16,8 @@ export const sendEmail = async (to: string, html: string) => {
   await transporter.sendMail({
     from: 'kh70926@gmail.com', 
     to, 
-    subject: 'Password Change Mail!!!!', 
-    text: 'Please note that this link is only valid for 10 minutes. After this period, you will need to submit another password reset request.', 
+    subject: 'PH-University:-Password Change Mail!!!!', 
+    text: '', 
     html,
   });
 };
