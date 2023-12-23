@@ -9,15 +9,15 @@ export const sendEmail = async (to: string, html: string) => {
     auth: {
       // TODO: replace `user` and `pass` values from <https://forwardemail.net>
       user: 'kh70926@gmail.com',
-      pass: 'htkj ifmj hfsj xcyb',
+      pass: config.smtp_secret,
     },
   });
 
   await transporter.sendMail({
-    from: 'kh70926@gmail.com', 
-    to, 
-    subject: 'PH-University:-Password Change Mail!!!!', 
-    text: '', 
+    from: 'kh70926@gmail.com',
+    to,
+    subject: 'PH-University:-Password Change Mail!!!!',
+    text: '',
     html,
   });
 };
