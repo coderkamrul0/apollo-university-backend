@@ -18,6 +18,7 @@ import { AcademicDepartment } from './../academicDepartment/academicDepartment.m
 import { Faculty } from '../faculty/faculty.model';
 import { Admin } from '../Admin/admin.model';
 import { TAdmin } from '../Admin/admin.interface';
+import { verifyToken } from '../Auth/auth.utils';
 
 const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
@@ -28,7 +29,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
   );
-  
+
   if (!admissionSemester) {
     throw new AppError(httpStatus.NOT_FOUND, 'Admission semester not found');
   }
@@ -66,7 +67,10 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     } else {
       await session.abortTransaction();
       await session.endSession();
-      throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, 'Failed to create student');
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to create student',
+      );
     }
   }
 };
@@ -175,8 +179,30 @@ const createAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 };
 
+const getMe = async (token: string) => {
+  const decoded = verifyToken(token, config.jwt_access_secret as string);
+
+  const { userId, role } = decoded;
+  let result = null;
+
+  if (role === 'student') {
+    result = await Student.findOne({ id: userId });
+  }
+  if (role === 'faculty') {
+    result = await Faculty.findOne({ id: userId });
+  }
+  if (role === 'admin') {
+    result = await Admin.findOne({ id: userId });
+  }
+
+  console.log(userId, role);
+
+  return result;
+};
+
 export const UserService = {
   createStudentIntoDB,
   createFacultyIntoDB,
   createAdminIntoDB,
+  getMe,
 };
