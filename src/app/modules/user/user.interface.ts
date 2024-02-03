@@ -7,19 +7,21 @@ export interface TUser {
   email: string;
   password: string;
   needsPasswordChange: boolean;
-  passwordChangeAt?: Date;
-  role: 'admin' | 'student' | 'faculty';
+  passwordChangedAt?: Date;
+  role: 'superAdmin' | 'admin' | 'student' | 'faculty';
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
 }
 
 export interface UserModel extends Model<TUser> {
+  //instance methods for checking if the user exist
   isUserExistsByCustomId(id: string): Promise<TUser>;
-  isPasswordMatch(
-    plainTextPassWord: string,
+  //instance methods for checking if passwords are matched
+  isPasswordMatched(
+    plainTextPassword: string,
     hashedPassword: string,
   ): Promise<boolean>;
-  isJWTIssuedBeforeChanged(
+  isJWTIssuedBeforePasswordChanged(
     passwordChangedTimestamp: Date,
     jwtIssuedTimestamp: number,
   ): boolean;

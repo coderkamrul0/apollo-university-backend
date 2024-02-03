@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SemesterRegistrationStatus } from './semeserRegistration.constant';
+import { SemesterRegistrationStatus } from './semesterRegistration.constant';
 
 const createSemesterRegistrationValidationSchema = z.object({
   body: z.object({
@@ -12,7 +12,7 @@ const createSemesterRegistrationValidationSchema = z.object({
   }),
 });
 
-const updateSemesterRegistrationValidationSchema = z.object({
+const upadateSemesterRegistrationValidationSchema = z.object({
   body: z.object({
     academicSemester: z.string().optional(),
     status: z
@@ -25,7 +25,7 @@ const updateSemesterRegistrationValidationSchema = z.object({
   }),
 });
 
-export const SemesterRegistrationValidation = {
+export const SemesterRegistrationValidations = {
   createSemesterRegistrationValidationSchema,
-  updateSemesterRegistrationValidationSchema,
+  upadateSemesterRegistrationValidationSchema,
 };

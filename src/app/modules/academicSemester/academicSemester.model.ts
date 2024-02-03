@@ -1,62 +1,66 @@
 import { Schema, model } from 'mongoose';
-import { TAcademicSemester, TMonths } from './academicSemester.interface';
-import AppError from '../../errors/AppError';
-import httpStatus from 'http-status';
+import {
+  AcademicSemesterCode,
+  AcademicSemesterName,
+  Months,
+} from './academicSemester.constant';
+import { TAcademicSemester } from './academicSemester.interface';
 
-const Months: TMonths[] = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const academicSemesterSchema = new Schema<TAcademicSemester>(
+const acdemicSemesterSchema = new Schema<TAcademicSemester>(
   {
     name: {
       type: String,
-      enum: ['Autumn', 'Summer', 'Fall'],
+      required: true,
+      enum: AcademicSemesterName,
+    },
+    year: {
+      type: String,
       required: true,
     },
     code: {
       type: String,
-      enum: ['01', '02', '03'],
       required: true,
+      enum: AcademicSemesterCode,
     },
-    year: { type: String, required: true },
     startMonth: {
       type: String,
-      enum: Months,
       required: true,
+      enum: Months,
     },
     endMonth: {
       type: String,
-      enum: Months,
       required: true,
+      enum: Months,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-academicSemesterSchema.pre('save', async function (next) {
+acdemicSemesterSchema.pre('save', async function (next) {
   const isSemesterExists = await AcademicSemester.findOne({
     year: this.year,
     name: this.name,
   });
+
   if (isSemesterExists) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Semester is already exists');
+    throw new Error('Semester is already exists !');
   }
   next();
 });
 
 export const AcademicSemester = model<TAcademicSemester>(
   'AcademicSemester',
-  academicSemesterSchema,
+  acdemicSemesterSchema,
 );
+
+// Name Year
+//2030 Autumn => Created
+// 2031 Autumn
+//2030 Autumn => XXX
+//2030 Fall => Created
+
+// Autumn 01
+// Summer 02
+// Fall 03

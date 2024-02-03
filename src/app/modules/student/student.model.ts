@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
 import { Schema, model } from 'mongoose';
 import {
+  StudentModel,
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentModel,
   TUserName,
 } from './student.interface';
 
-// username schema
 const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
@@ -28,7 +26,6 @@ const userNameSchema = new Schema<TUserName>({
   },
 });
 
-// guardian schema
 const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
@@ -58,8 +55,7 @@ const guardianSchema = new Schema<TGuardian>({
   },
 });
 
-// local guardian schema
-const localGuardianSchema = new Schema<TLocalGuardian>({
+const localGuradianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -78,77 +74,81 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   },
 });
 
-// main schema
 const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: {
       type: String,
-      required: [true, 'Student ID is required'],
+      required: [true, 'ID is required'],
       unique: true,
     },
     user: {
       type: Schema.Types.ObjectId,
-      required: true,
+      required: [true, 'User id is required'],
       unique: true,
       ref: 'User',
     },
     name: {
-      type: userNameSchema, // username schema
-      required: [true, 'Student name is required'],
+      type: userNameSchema,
+      required: [true, 'Name is required'],
     },
     gender: {
       type: String,
       enum: {
         values: ['male', 'female', 'other'],
-        message: '{VALUE} is not valid',
+        message: '{VALUE} is not a valid gender',
       },
       required: [true, 'Gender is required'],
     },
-    dateOfBirth: {
-      type: Date,
-    },
+    dateOfBirth: { type: Date },
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
     },
-    contactNo: { type: String, required: [true, 'Contact No is required'] },
+    contactNo: { type: String, required: [true, 'Contact number is required'] },
     emergencyContactNo: {
       type: String,
-      required: [true, 'Emergency Contact No is required'],
+      required: [true, 'Emergency contact number is required'],
     },
-    bloodGroup: {
+    bloogGroup: {
       type: String,
-      enum: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
+      enum: {
+        values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        message: '{VALUE} is not a valid blood group',
+      },
     },
     presentAddress: {
       type: String,
-      required: [true, 'Present Address is required'],
+      required: [true, 'Present address is required'],
     },
     permanentAddress: {
       type: String,
-      required: [true, 'Permanent Address is required'],
+      required: [true, 'Permanent address is required'],
     },
     guardian: {
-      type: guardianSchema, // guardian schema
+      type: guardianSchema,
       required: [true, 'Guardian information is required'],
     },
     localGuardian: {
-      type: localGuardianSchema, // local guardian schema
-      required: [true, 'Local Guardian information is required'],
+      type: localGuradianSchema,
+      required: [true, 'Local guardian information is required'],
     },
-    profileImg: { type: String },
+    profileImg: { type: String, default: '' },
     admissionSemester: {
       type: Schema.Types.ObjectId,
       ref: 'AcademicSemester',
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
     academicDepartment: {
       type: Schema.Types.ObjectId,
       ref: 'AcademicDepartment',
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
+    academicFaculty: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicFaculty',
     },
   },
   {
@@ -158,7 +158,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
   },
 );
 
-// virtual
+//virtual
 studentSchema.virtual('fullName').get(function () {
   return this?.name?.firstName + this?.name?.middleName + this?.name?.lastName;
 });
@@ -185,5 +185,4 @@ studentSchema.statics.isUserExists = async function (id: string) {
   return existingUser;
 };
 
-//creating a custom static method
 export const Student = model<TStudent, StudentModel>('Student', studentSchema);

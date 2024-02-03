@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
+import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
-import httpStatus from 'http-status';
 import { SemesterRegistrationService } from './semesterRegistration.service';
 
 const createSemesterRegistration = catchAsync(
@@ -14,12 +14,13 @@ const createSemesterRegistration = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Semester Registration is created successfully',
+      message: 'Semester Registration is created successfully!',
       data: result,
     });
   },
 );
-const getAllSemesterRegistration = catchAsync(
+
+const getAllSemesterRegistrations = catchAsync(
   async (req: Request, res: Response) => {
     const result =
       await SemesterRegistrationService.getAllSemesterRegistrationsFromDB(
@@ -29,8 +30,9 @@ const getAllSemesterRegistration = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Semester Registration is retrieved successfully',
-      data: result,
+      message: 'Semester Registration is retrieved successfully !',
+      meta: result.meta,
+      data: result.result,
     });
   },
 );
@@ -52,6 +54,7 @@ const getSingleSemesterRegistration = catchAsync(
     });
   },
 );
+
 const updateSemesterRegistration = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -70,9 +73,25 @@ const updateSemesterRegistration = catchAsync(
   },
 );
 
+const deleteSemesterRegistration = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result =
+      await SemesterRegistrationService.deleteSemesterRegistrationFromDB(id);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Semester Registration is updated successfully',
+      data: result,
+    });
+  },
+);
+
 export const SemesterRegistrationController = {
   createSemesterRegistration,
-  getAllSemesterRegistration,
+  getAllSemesterRegistrations,
   getSingleSemesterRegistration,
   updateSemesterRegistration,
+  deleteSemesterRegistration,
 };
